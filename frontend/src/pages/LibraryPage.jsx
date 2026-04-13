@@ -27,7 +27,7 @@ const TYPES = [
 ];
 
 export default function LibraryPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   
   const [items, setItems] = useState([]);
@@ -42,12 +42,14 @@ export default function LibraryPage() {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!authLoading && !isAuthenticated) {
       navigate('/login');
       return;
     }
-    fetchList();
-  }, [isAuthenticated]);
+    if (!authLoading && isAuthenticated) {
+      fetchList();
+    }
+  }, [isAuthenticated, authLoading]);
 
   const fetchList = async () => {
     setLoading(true);
@@ -94,6 +96,7 @@ export default function LibraryPage() {
   const statusCounts = {};
   items.forEach(e => { statusCounts[e.userStatus] = (statusCounts[e.userStatus] || 0) + 1; });
 
+  if (authLoading) return null;
   if (!isAuthenticated) return null;
 
   return (

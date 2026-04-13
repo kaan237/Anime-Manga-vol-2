@@ -17,16 +17,16 @@ const STATUS_LABELS_TR = {
 };
 
 export default function ProfilePage() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [recentItems, setRecentItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) { navigate('/login'); return; }
-    fetchStats();
-  }, [isAuthenticated]);
+    if (!authLoading && !isAuthenticated) { navigate('/login'); return; }
+    if (!authLoading && isAuthenticated) fetchStats();
+  }, [isAuthenticated, authLoading]);
 
   const fetchStats = async () => {
     try {
@@ -42,6 +42,7 @@ export default function ProfilePage() {
     navigate('/');
   };
 
+  if (authLoading) return null;
   if (!isAuthenticated) return null;
 
   const totalItems = Object.values(stats?.statusBreakdown || {}).reduce((a, b) => a + b, 0);
