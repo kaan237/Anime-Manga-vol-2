@@ -1,22 +1,10 @@
-const BASE_URL = import.meta.env.VITE_TMDB_BASE_URL;
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-const IMAGE_URL = import.meta.env.VITE_TMDB_IMAGE_URL;
+import api from './backendApi';
 
 export const getImageUrl = (path, size = 'w500') => {
   if (!path) return null;
-  return `${IMAGE_URL}/${size}${path}`;
+  const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  return `${backendUrl}/api/tmdb/image/${size}${path}`;
 };
-
-async function tmdbFetch(endpoint, params = {}) {
-  const url = new URL(`${BASE_URL}${endpoint}`);
-  url.searchParams.set('api_key', API_KEY);
-  url.searchParams.set('language', 'en-US');
-  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
-  
-  const res = await fetch(url.toString());
-  if (!res.ok) throw new Error(`TMDB API error: ${res.status}`);
-  return res.json();
-}
 
 export function normalizeTmdb(item, type) {
   const isMovie = type === 'movie';
@@ -44,22 +32,25 @@ export function normalizeTmdb(item, type) {
 }
 
 export async function searchTmdb(query, type = 'movie', page = 1) {
-  const data = await tmdbFetch(`/search/${type}`, { query, page });
+  // TMDB proxy in backend
+  const { data } = await api.get(`/api/tmdb/search/${type}`, { 
+    params: { query, page } 
+  });
+  
   return {
-    items: data.results.map(item => normalizeTmdb(item, type)),
+    items: (data.results || []).map(item => normalizeTmdb(item, type)),
     pageInfo: {
-      total: data.total_results,
-      currentPage: data.page,
-      lastPage: data.total_pages,
+      total: data.total_results || 0,
+      currentPage: data.page || 1,
+      lastPage: data.total_pages || 1,
       hasNextPage: data.page < data.total_pages
     }
   };
 }
 
 export async function getTmdbDetail(id, type = 'movie') {
-  const data = await tmdbFetch(`/${type}/${id}`, {
-    append_to_response: 'credits,videos,similar'
-  });
+  // TMDB proxy in backend
+  const { data } = await api.get(`/api/tmdb/detail/${type}/${id}`);
   return normalizeTmdb(data, type);
 }
 

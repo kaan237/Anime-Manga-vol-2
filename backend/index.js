@@ -7,6 +7,7 @@ require('dotenv').config();
 const authRoutes = require('./routes/auth');
 const mediaRoutes = require('./routes/media');
 const userMediaRoutes = require('./routes/userMedia');
+const tmdbRoutes = require('./routes/tmdb');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use('/api/', limiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/usermedia', userMediaRoutes);
+app.use('/api/tmdb', tmdbRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
