@@ -11,11 +11,14 @@ const tmdbRoutes = require('./routes/tmdb');
 
 const app = express();
 
+// Trust proxy ayarı (Render'ın yük dengeleyicisi arkasında doğru IP'leri alması için çok önemlidir. Yoksa tüm girenleri ayni kişi sanır.)
+app.set('trust proxy', 1);
+
 // Rate limiter
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  message: { error: 'Too many requests, please try again later.' }
+  max: 1000, // limiti artırdım
+  message: { error: 'Sistem meşgul, çok fazla işlem yapıldı. Lütfen biraz sonra tekrar deneyin.' }
 });
 
 // Middleware
