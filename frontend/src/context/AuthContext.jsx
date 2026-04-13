@@ -17,7 +17,10 @@ export function AuthProvider({ children }) {
         // Verify token is still valid
         authApi.me()
           .then(res => setUser(res.data.user))
-          .catch(() => logout())
+          .catch((err) => {
+            // Sadece hata konsola yazılır, kullanıcının çıkışı 401 interceptor tarafından yapılır.
+            console.error('Token doğrulanırken sunucuya ulaşılamadı:', err.message);
+          })
           .finally(() => setLoading(false));
       } catch {
         logout();
