@@ -45,11 +45,10 @@ router.get('/detail/:type/:id', async (req, res) => {
   }
 });
 
-router.get('/image/:size/*', async (req, res) => {
+router.get('/image/:size/:imgName', async (req, res) => {
   try {
-    const { size } = req.params;
-    const path = req.params[0];
-    const url = `${TMDB_IMAGE_URL}/${size}/${path}`;
+    const { size, imgName } = req.params;
+    const url = `${TMDB_IMAGE_URL}/${size}/${imgName}`;
     
     const response = await fetch(url);
     if (!response.ok) return res.status(response.status).send('Not found');
